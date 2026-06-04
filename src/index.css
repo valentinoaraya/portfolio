@@ -1,0 +1,107 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap");
+@import "tailwindcss";
+
+@theme {
+	--color-dark: #0e0e0e;
+	--color-light: #f1f1f1;
+	--color-pink: #f72585;
+	--color-magenta: #b5179e;
+	--color-violet: #7209b7;
+	--color-purple-1: #560bad;
+	--color-purple-2: #480ca8;
+	--color-purple-3: #3a0ca3;
+	--color-indigo: #3f37c9;
+	--color-blue-1: #4361ee;
+	--color-blue-2: #4895ef;
+	--color-cyan: #4cc9f0;
+}
+
+@layer base {
+	body {
+		margin: 0;
+		background: var(--color-dark);
+		color: var(--color-light);
+	}
+}
+
+@layer components {
+	.liquid-glass {
+		background: rgba(215, 215, 215, 0.02);
+		background-blend-mode: luminosity;
+		backdrop-filter: blur(4px);
+		-webkit-backdrop-filter: blur(4px);
+		border: none;
+		box-shadow: inset 0 1px 1px rgba(215, 215, 215, 0.08);
+		position: relative;
+		overflow: hidden;
+	}
+
+	.liquid-glass::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		padding: 1.4px;
+		background: linear-gradient(
+			180deg,
+			rgba(76, 201, 240, 0.4) 0%,
+			rgba(72, 149, 239, 0.2) 20%,
+			rgba(114, 9, 183, 0) 40%,
+			rgba(114, 9, 183, 0) 60%,
+			rgba(72, 149, 239, 0.2) 80%,
+			rgba(114, 9, 183, 0.4) 100%
+		);
+		-webkit-mask:
+			linear-gradient(#fff 0 0) content-box,
+			linear-gradient(#fff 0 0);
+		-webkit-mask-composite: xor;
+		mask-composite: exclude;
+		pointer-events: none;
+	}
+
+	.text-gradient-accent {
+		background: linear-gradient(
+			135deg,
+			var(--color-violet) 0%,
+			var(--color-blue-2) 55%,
+			var(--color-cyan) 100%
+		);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+	}
+
+	.liquid-glass-light {
+		background: rgba(14, 14, 14, 0.04);
+		background-blend-mode: luminosity;
+		backdrop-filter: blur(4px);
+		-webkit-backdrop-filter: blur(4px);
+		border: none;
+		box-shadow: inset 0 1px 1px rgba(14, 14, 14, 0.06);
+		position: relative;
+		overflow: hidden;
+	}
+
+	.liquid-glass-light::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		padding: 1.4px;
+		background: linear-gradient(
+			180deg,
+			rgba(114, 9, 183, 0.35) 0%,
+			rgba(72, 149, 239, 0.18) 25%,
+			rgba(114, 9, 183, 0) 45%,
+			rgba(114, 9, 183, 0) 55%,
+			rgba(72, 149, 239, 0.18) 75%,
+			rgba(76, 201, 240, 0.35) 100%
+		);
+		-webkit-mask:
+			linear-gradient(#fff 0 0) content-box,
+			linear-gradient(#fff 0 0);
+		-webkit-mask-composite: xor;
+		mask-composite: exclude;
+		pointer-events: none;
+	}
+}
