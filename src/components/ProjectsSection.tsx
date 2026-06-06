@@ -1,11 +1,19 @@
 import { useRef, useState } from "react";
 import {
+	AnimatePresence,
 	motion,
 	useInView,
 	useMotionValueEvent,
 	useScroll,
 } from "framer-motion";
-import { Code2, Database, Layers, Sparkles, Wrench } from "lucide-react";
+import { BookOpen } from "lucide-react";
+import { CaseStudyModal, type CaseStudy } from "./CaseStudyModal";
+import tuRepeImg from "../assets/projects/tu-repe-mobile.webp";
+import tuRepeDashboardImg from "../assets/projects/tu-repe-safari.webp";
+import bookifyDashboardImg from "../assets/projects/bookify-mobile.webp";
+import bookifySafariImg from "../assets/projects/bookify-safari.webp";
+import toiletsSafariImg from "../assets/projects/toilets-safari.webp";
+import toiletsImg from "../assets/projects/toilets-mobile.webp";
 
 function GithubIcon({ size = 14 }: { size?: number }) {
 	return (
@@ -54,36 +62,27 @@ type Project = {
 	features: string[];
 	sideFeatures: SideFeature[];
 	imageSrc: string;
+	cardImageSrc: string;
+	caseStudy: CaseStudy;
 };
 
 const PROJECT_SCROLL_STEP_VH = 150;
+const COMPACT_FEATURE_BATCH_SIZE = 3;
 
-function createPlaceholderImage(
-	title: string,
-	subtitle: string,
-	from: string,
-	to: string,
-) {
-	const svg = `
-		<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<rect width="1200" height="800" fill="#0e0e0e"/>
-			<circle cx="1030" cy="120" r="260" fill="${from}" opacity="0.32"/>
-			<circle cx="180" cy="690" r="300" fill="${to}" opacity="0.24"/>
-			<rect x="92" y="92" width="1016" height="616" rx="42" fill="rgba(241,241,241,0.06)" stroke="rgba(241,241,241,0.16)" stroke-width="2"/>
-			<rect x="142" y="146" width="330" height="28" rx="14" fill="${from}" opacity="0.85"/>
-			<rect x="142" y="214" width="610" height="22" rx="11" fill="rgba(241,241,241,0.28)"/>
-			<rect x="142" y="262" width="476" height="22" rx="11" fill="rgba(241,241,241,0.18)"/>
-			<rect x="142" y="344" width="916" height="274" rx="32" fill="rgba(241,241,241,0.08)"/>
-			<rect x="190" y="394" width="292" height="174" rx="26" fill="${to}" opacity="0.28"/>
-			<rect x="516" y="394" width="492" height="34" rx="17" fill="rgba(241,241,241,0.25)"/>
-			<rect x="516" y="458" width="382" height="26" rx="13" fill="rgba(241,241,241,0.16)"/>
-			<rect x="516" y="516" width="438" height="26" rx="13" fill="rgba(241,241,241,0.12)"/>
-			<text x="142" y="675" fill="#f1f1f1" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="700">${title}</text>
-			<text x="146" y="724" fill="#4cc9f0" font-family="Inter, Arial, sans-serif" font-size="24" letter-spacing="4">${subtitle}</text>
-		</svg>
-	`;
-
-	return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+function getCompactFeatureState(revealedFeatures: number) {
+	if (revealedFeatures <= 0) {
+		return { batchIndex: 0, visibleInBatch: 0 };
+	}
+	if (revealedFeatures <= COMPACT_FEATURE_BATCH_SIZE) {
+		return {
+			batchIndex: 0,
+			visibleInBatch: revealedFeatures,
+		};
+	}
+	return {
+		batchIndex: 1,
+		visibleInBatch: revealedFeatures - COMPACT_FEATURE_BATCH_SIZE,
+	};
 }
 
 const projects: Project[] = [
@@ -92,214 +91,430 @@ const projects: Project[] = [
 		type: "Video · Deportes",
 		tagline: "Replay de partidos en clubes, al instante.",
 		description:
-			"Plataforma para clubes de pádel, fútbol y otros deportes con cámaras instaladas en canchas. Los partidos se graban de forma continua y el jugador elige el horario de su turno en la app para reproducir el video exacto, sin buscar manualmente en horas de grabación.",
-		role: "Full stack · streaming y producto",
-		url: "turepe.app",
-		repoUrl: "https://github.com/valentinoaraya/tu-repe",
+			"Plataforma B2B2C para complejos deportivos. Se instalan cámaras en las canchas y los partidos se graban automáticamente según el horario del club. El jugador busca por fecha, hora y cancha, sin registrarse, y el sistema localiza el segmento exacto y genera URLs firmadas de descarga.",
+		role: "Full Stack · streaming y producto",
+		url: "turepe.aedestec.com",
+		repoUrl: "https://github.com/Aedes/tu-repe",
 		mock: "iphone",
 		accent: "blue-2",
 		highlights: [
-			{ label: "Vertical", value: "Deportes en clubes" },
-			{ label: "Captura", value: "Cámaras fijas 24/7" },
-			{ label: "UX clave", value: "Buscar por turno" },
+			{ label: "Endpoints REST", value: "45" },
+			{ label: "Tests automatizados", value: "50 archivos" },
+			{ label: "Migraciones SQL", value: "34" },
 		],
-		frontend: ["React", "PWA móvil", "HLS / video player", "Tailwind"],
-		backend: ["Node.js", "API REST", "PostgreSQL", "Pipeline de video"],
-		integrations: ["Almacenamiento en nube", "CDN", "Panel para clubes"],
+		frontend: ["React 19", "TypeScript", "Vite", "Zustand"],
+		backend: ["Node.js", "Express 5", "MySQL 8", "FFmpeg", "Jest"],
+		integrations: ["Backblaze B2", "Cloudinary", "JWT dual", "node-cron"],
 		challenge:
-			"Encontrar y reproducir el tramo exacto del partido dentro de horas de grabación continua, con buena experiencia en móvil.",
+			"Diseñar un pipeline de video de 7 etapas completamente autónomo: desde la cámara RTSP hasta el reproductor del jugador, con resiliencia ante fallos de red y búsqueda sin sistema de reservas.",
 		features: [
-			"Grabación automática por cancha y horario de apertura",
-			"Búsqueda por fecha, hora y duración del turno",
-			"Reproducción con seek preciso al minuto del partido",
-			"Panel para clubes: canchas, horarios y accesos",
-			"Optimización de clips para consumo móvil",
+			"Pipeline RTSP → ffmpeg segmentado → ingesta → Backblaze B2",
+			"Grabación automática por cancha según horario comercial del club",
+			"Búsqueda por ventana temporal sin sistema de reservas",
+			"URLs firmadas de B2 con expiración (2 horas) por seguridad",
+			"Clips grabados en el navegador (MediaRecorder) y convertidos a MP4 server-side",
+			"Panel admin multi-club con white-label (logo, colores, branding por club)",
 		],
 		sideFeatures: [
 			{
-				title: "Grabación 24/7",
+				title: "Pipeline de 7 etapas",
 				description:
-					"Cámaras fijas en cada cancha graban de forma continua durante todo el horario del club.",
+					"Cámara RTSP → ffmpeg → filesystem → chokidar → B2 → MySQL → reproductor HTML5. Completamente autónomo.",
 			},
 			{
-				title: "Búsqueda por turno",
+				title: "Grabación automática",
 				description:
-					"El jugador ingresa la fecha y hora de su reserva y el sistema ubica el video exacto.",
+					"node-cron evalúa cada minuto si el club está en horario. ffmpeg inicia o detiene la grabación sin intervención.",
 			},
 			{
-				title: "Seek preciso",
+				title: "Resiliencia ante fallos",
 				description:
-					"El player salta al minuto justo del partido, sin recorrer horas de grabación.",
+					"Cola failed_uploads con backoff exponencial (1m→24h) y hasta 10 reintentos por subida fallida.",
 			},
 			{
-				title: "Pensado para móvil",
+				title: "Sin sistema de reservas",
 				description:
-					"Clips optimizados y reproducción en PWA para ver y compartir desde el teléfono.",
+					"El turno se deriva de appointment_duration + hora seleccionada. Query de intersección temporal en MySQL.",
 			},
 			{
-				title: "Panel para clubes",
+				title: "Clips desde el navegador",
 				description:
-					"Administración de canchas, horarios y accesos para cada sede.",
+					"MediaRecorder + captureStream() genera WebM en el cliente. El backend convierte a MP4 con ffmpeg.",
 			},
 			{
-				title: "Stack",
+				title: "Multi-tenancy y white-label",
 				description:
-					"React + PWA en el front; Node.js, PostgreSQL y un pipeline de video en el back.",
+					"JWT dual (admin + dueño), middleware de ownership por recurso, tema CSS dinámico por club.",
 			},
 		],
-		imageSrc: createPlaceholderImage(
-			"Tu Repe",
-			"SPORTS REPLAY",
-			"#4895ef",
-			"#4cc9f0",
-		),
+		imageSrc: tuRepeImg,
+		cardImageSrc: tuRepeDashboardImg,
+		caseStudy: {
+			projectTitle: "Tu Repe",
+			type: "Video · Deportes",
+			accent: "blue-2",
+			context:
+				"Clubes de pádel, fútbol y básquet tienen cámaras instaladas en sus canchas, pero los jugadores rara vez acceden a las grabaciones. Encontrar un partido de 90 minutos dentro de horas de video continuo es inviable sin automatización.",
+			problem:
+				"Automatizar la captura, almacenamiento y distribución de videos de partidos sin requerir intervención del club ni registro del jugador. El jugador solo conoce la fecha y hora de su turno y el sistema debe localizar el fragmento exacto.",
+			solution:
+				"Pipeline de 7 etapas: cámaras transmiten por RTSP → ffmpeg segmenta en chunks de 15 min → chokidar detecta cada archivo estabilizado → se sube a Backblaze B2 → se registra en MySQL → Express API genera URLs firmadas con expiración de 2h → el reproductor HTML5 hace seek directo al offset del turno. Todo el proceso es autónomo, sin intervención humana.",
+			architecture: [
+				"Cámara RTSP",
+				"ffmpeg + cron",
+				"/var/videos",
+				"chokidar",
+				"Backblaze B2",
+				"MySQL 8",
+				"Express API",
+				"React Player",
+			],
+			technicalChallenges: [
+				{
+					title: "Grabación continua multi-cancha",
+					problem:
+						"Cada club tiene N canchas con streams RTSP independientes que deben grabarse en paralelo solo durante horario de apertura.",
+					solution:
+						"RecordingScheduler con node-cron cada minuto evalúa hora actual en timezone Argentina. VideoRecordingService mantiene un Map en memoria con procesos ffmpeg activos por courtId, con soporte para horarios que cruzan medianoche.",
+				},
+				{
+					title: "Ingesta confiable sin corrupción",
+					problem:
+						"ffmpeg escribe archivos MP4 incrementalmente. Procesarlos antes de que terminen corrompe la ingesta a B2.",
+					solution:
+						"chokidar con awaitWriteFinish.stabilityThreshold de 10 segundos garantiza que el archivo está completo antes de iniciar el upload.",
+				},
+				{
+					title: "Resiliencia ante fallos de red",
+					problem:
+						"Las subidas a cloud storage pueden fallar, perdiendo grabaciones definitivamente si solo se intenta una vez.",
+					solution:
+						"Tabla failed_uploads con worker de reintentos y backoff escalonado (1m→5m→15m→1h→6h→24h), máximo 10 intentos. cleanup worker elimina archivos locales de fallos permanentes.",
+				},
+				{
+					title: "Búsqueda sin sistema de reservas",
+					problem:
+						"Los clubes no tienen reservas integradas, pero el jugador conoce su fecha y hora de partido.",
+					solution:
+						"Modelo de turno derivado de appointmentDuration del club: startTime + duración → ventana temporal → SQL query de intersección de rangos en la tabla videos por courtId.",
+				},
+			],
+			results: [
+				"45 endpoints REST con autenticación dual (admin + dueño de club) y autorización granular por recurso via middleware",
+				"50 archivos de test automatizados con Jest + Supertest (unit + integration), incluyendo escenarios de fallo de ingesta",
+				"34 migraciones SQL versionadas con runner idempotente, evidenciando evolución controlada del esquema",
+				"Pipeline de video de 7 etapas completamente autónomo: desde la cámara hasta el navegador del jugador",
+				"Clips generados en el navegador con MediaRecorder + conversión server-side WebM→MP4 con ffmpeg",
+				"White-label por club: logo, portada y paleta de colores aplicados como CSS variables dinámicas",
+			],
+			technologies: [
+				"TypeScript",
+				"Node.js",
+				"Express 5",
+				"MySQL 8",
+				"React 19",
+				"Vite",
+				"Zustand",
+				"FFmpeg",
+				"Backblaze B2",
+				"Cloudinary",
+				"JWT",
+				"Docker",
+				"Jest",
+				"node-cron",
+				"chokidar",
+			],
+		},
 	},
 	{
 		title: "Bookify",
 		type: "SaaS · Reservas",
-		tagline: "Turnos, pagos y recordatorios en un solo flujo.",
+		tagline:
+			"Turnos, cobros y recordatorios automatizados para profesionales.",
 		description:
-			"Plataforma de gestión de turnos donde empresas publican servicios y clientes reservan online. Incluye cobros con Mercado Pago, notificaciones automáticas por mail o WhatsApp y políticas de reembolso sin intervención manual del negocio.",
-		role: "Full stack · pagos y automatización",
-		url: "bookify.app",
-		repoUrl: "https://github.com/valentinoaraya/bookify",
-		mock: "safari",
+			"Plataforma SaaS de gestión de turnos para profesionales y empresas de servicios del mercado argentino. Los clientes reservan sin registrarse en el portal público de cada empresa. Cobro de señas con Mercado Pago OAuth per-empresa, recordatorios programados con BullMQ y panel en tiempo real con Socket.io.",
+		role: "Full Stack · pagos y automatización",
+		url: "bookify.aedestec.com",
+		repoUrl: "https://github.com/valentinoaraya/bookify-backend",
+		mock: "iphone",
 		accent: "violet",
 		highlights: [
-			{ label: "Modelo", value: "B2B2C reservas" },
-			{ label: "Pagos", value: "Mercado Pago" },
-			{ label: "Ops", value: "Reembolsos auto" },
+			{ label: "Estado", value: "En producción" },
+			{ label: "Endpoints REST", value: "30" },
+			{ label: "Planes SaaS", value: "3 tiers" },
 		],
-		frontend: ["React", "Tailwind", "Calendarios", "Dashboard"],
-		backend: ["Node.js", "PostgreSQL", "Webhooks", "Jobs programados"],
+		frontend: ["React", "TypeScript", "Vite", "Ant Design", "FullCalendar"],
+		backend: [
+			"Node.js",
+			"Express",
+			"MongoDB",
+			"Mongoose",
+			"Redis",
+			"BullMQ",
+			"Socket.io",
+		],
 		integrations: [
-			"Mercado Pago",
-			"Emails transaccionales",
-			"Notificaciones push",
+			"Mercado Pago OAuth",
+			"SMTP Brevo",
+			"Socket.io tiempo real",
 		],
 		challenge:
-			"Mantener reservas, cobros y reembolsos alineados cuando el cliente cancela o el pago falla a último momento.",
+			"Prevenir race conditions en reservas con pago: dos clientes podían seleccionar el mismo slot mientras uno completaba el checkout en Mercado Pago, generando doble cobro y turnos duplicados.",
 		features: [
-			"Agenda por profesional, sucursal y tipo de servicio",
-			"Cobro anticipado o seña al confirmar reserva",
-			"Recordatorios automáticos antes del turno",
-			"Reembolsos según reglas del negocio (cancelación tardía, etc.)",
-			"Panel de métricas: ocupación, ingresos y no-shows",
+			"Portal público de reserva por empresa sin registro de cliente",
+			"Cobro de señas con Mercado Pago OAuth — cada empresa cobra en su propia cuenta",
+			"Bloqueo temporal del slot (15 min) durante el proceso de pago para evitar race conditions",
+			"Reembolsos automáticos diferenciados: 50% cliente / 100% empresa / 100% sistema",
+			"Recordatorios exactos al minuto con BullMQ (worker separado del API)",
+			"Panel empresa en tiempo real con Socket.io: nuevas reservas y cancelaciones sin recargar",
 		],
 		sideFeatures: [
 			{
-				title: "Agenda flexible",
+				title: "Portal sin registro",
 				description:
-					"Turnos por profesional, sucursal y tipo de servicio en una sola vista.",
+					"Los clientes reservan en /c/:empresa_id sin crear cuenta. Solo nombre, DNI y email para confirmar.",
 			},
 			{
-				title: "Cobros con Mercado Pago",
+				title: "OAuth por empresa",
 				description:
-					"Seña o pago total al confirmar, integrado de punta a punta.",
+					"Cada empresa vincula su Mercado Pago con OAuth. Las señas van directo a la cuenta del profesional.",
 			},
 			{
-				title: "Recordatorios automáticos",
+				title: "Anti race-condition",
 				description:
-					"Notificaciones por mail y push antes de cada turno para reducir ausencias.",
+					"pendingAppointments con TTL de 15 min bloquea el slot. Si el pago falla o el slot se ocupa, reembolso automático.",
 			},
 			{
-				title: "Reembolsos sin fricción",
+				title: "Recordatorios con BullMQ",
 				description:
-					"Devoluciones automáticas según las reglas de cancelación del negocio.",
+					"Al confirmar un turno se encolan jobs con delay calculado al minuto exacto. Worker independiente del API.",
 			},
 			{
-				title: "Métricas del negocio",
+				title: "Tiempo real con Socket.io",
 				description:
-					"Ocupación, ingresos y no-shows en un panel claro para el dueño.",
+					"Rooms por companyId. El panel de la empresa actualiza reservas y cancelaciones sin refrescar.",
 			},
 			{
-				title: "Stack",
+				title: "Suscripciones SaaS",
 				description:
-					"React y Tailwind en el front; Node.js, PostgreSQL, webhooks y jobs programados.",
+					"3 planes con cobro recurrente via PreApproval MP. Upgrade y downgrade sin fricciones desde el panel.",
 			},
 		],
-		imageSrc: createPlaceholderImage(
-			"Bookify",
-			"BOOKING + PAYMENTS",
-			"#7209b7",
-			"#4895ef",
-		),
+		imageSrc: bookifyDashboardImg,
+		cardImageSrc: bookifySafariImg,
+		caseStudy: {
+			projectTitle: "Bookify",
+			type: "SaaS · Reservas",
+			accent: "violet",
+			context:
+				"Las pymes de servicios argentinas (consultorios, estudios, profesionales independientes) gestionan su agenda con WhatsApp y planillas. El resultado es doble reservas, ausentismo sin consecuencias y cobros de señas sin automatización.",
+			problem:
+				"Digitalizar el ciclo completo del turno: disponibilidad, reserva sin fricción, cobro de señas con Mercado Pago, recordatorios automáticos y reembolsos según política del negocio. Todo en una plataforma SaaS accesible para profesionales independientes.",
+			solution:
+				"SaaS con 3 planes de suscripción. Cada empresa publica servicios y slots configurables. Los clientes reservan sin registrarse. Si el servicio tiene seña, se crea una preferencia Mercado Pago y se bloquea el slot 15 minutos (pendingAppointments TTL). El webhook de MP confirma el pago, crea el turno, programa recordatorios via BullMQ y emite el evento Socket.io al panel de la empresa. Si el slot se ocupó durante el checkout, el sistema reembolsa automáticamente.",
+			architecture: [
+				"React SPA",
+				"Express + Socket.io",
+				"MongoDB Atlas",
+				"Redis + BullMQ",
+				"Mercado Pago API",
+				"SMTP Brevo",
+			],
+			technicalChallenges: [
+				{
+					title: "Race condition en reservas con pago",
+					problem:
+						"Dos clientes podían seleccionar el mismo slot mientras uno completaba el checkout en Mercado Pago, causando doble cobro y turno duplicado.",
+					solution:
+						"pendingAppointments con TTL de 15 minutos. Al crear la preferencia MP, el slot se marca como pendiente. Webhook verifica disponibilidad antes de confirmar. Si no hay slot, reembolso automático al 100%.",
+				},
+				{
+					title: "Doble flujo de tokens Mercado Pago",
+					problem:
+						"La plataforma cobra suscripciones SaaS Y cada empresa necesita cobrar señas en su propia cuenta MP — requieren tokens distintos.",
+					solution:
+						"Token Aedes (env) para PreApproval (suscripciones) + OAuth Connect per-empresa para checkout preferences (señas). Cron diario renueva tokens OAuth antes de que expiren.",
+				},
+				{
+					title: "Recordatorios exactos al minuto",
+					problem:
+						"Un cron que escanea toda la BD cada N minutos es impreciso y sobrecarga la base de datos.",
+					solution:
+						"BullMQ con delay calculado por turno: jobTime = appointmentDate − hoursBefore. Worker separado del API con 3 reintentos. IDs de jobs guardados en el documento Appointment para cancelación.",
+				},
+				{
+					title: "Reembolsos diferenciados por actor",
+					problem:
+						"Políticas de devolución distintas según quién cancela (cliente, empresa o el sistema tras pago aprobado sin slot).",
+					solution:
+						"Cliente cancela → 50% de seña. Empresa cancela → 100%. Sistema (slot ocupado en webhook) → 100%. Función refund() centralizada con idempotency key.",
+				},
+			],
+			results: [
+				"30 endpoints REST con JWT dual (access 1h + refresh 7d) y renovación automática transparente en el frontend",
+				"En producción en bookify.aedestec.com con clientes reales activos",
+				"3 planes SaaS con cobro recurrente, upgrade y downgrade automatizados via Mercado Pago PreApproval",
+				"8+ flujos de email transaccional con templates HTML para cada evento del ciclo de vida del turno",
+				"Panel empresa en tiempo real con Socket.io: nuevas reservas visibles al instante sin recargar",
+				"Capacidad configurable por slot para servicios grupales (atomicidad MongoDB $inc)",
+			],
+			technologies: [
+				"TypeScript",
+				"React",
+				"Vite",
+				"Node.js",
+				"Express",
+				"MongoDB",
+				"Mongoose",
+				"Redis",
+				"BullMQ",
+				"Socket.io",
+				"JWT",
+				"Mercado Pago",
+				"Nodemailer",
+				"Ant Design",
+				"FullCalendar",
+			],
+		},
 	},
 	{
 		title: "Gestión de baños químicos",
-		type: "PWA · Campo offline",
-		tagline: "Operaciones en obra sin depender de señal.",
+		type: "PWA · Industria",
+		tagline: "Trazabilidad operativa en obra, con o sin señal.",
 		description:
-			"Sistema para una empresa de alquiler de baños químicos: instalaciones en obras y eventos, muchas veces sin internet. PWA con base local que registra limpiezas y movilizaciones en terreno y sincroniza con el servidor al recuperar conectividad.",
-		role: "Full stack · offline-first",
-		url: "sanitarios.ops",
-		repoUrl: "https://github.com/valentinoaraya/gestion-sanitarios",
+			"PWA instalable para Don Fortunato, empresa de alquiler de baños químicos en obras industriales de Catriel. Los operarios escanean QR de cada baño para registrar limpiezas y movilizaciones con GPS — incluso offline. Supervisores e clientes generan reportes PDF de auditoría con formato contractual (Techint/OLDVALV).",
+		role: "Full Stack · PWA offline-first",
+		url: undefined,
+		repoUrl: undefined,
 		mock: "iphone",
 		accent: "cyan",
 		highlights: [
-			{ label: "Entorno", value: "Sin conexión" },
-			{ label: "Datos", value: "Sync diferida" },
-			{ label: "Operación", value: "Limpieza + traslado" },
+			{ label: "Arquitectura", value: "BaaS + offline-first" },
+			{ label: "RPC PostgreSQL", value: "Funciones optimizadas" },
+			{ label: "Entorno", value: "Obras sin señal" },
 		],
-		frontend: ["React PWA", "Service Workers", "IndexedDB", "Tailwind"],
+		frontend: [
+			"React 19",
+			"TypeScript",
+			"Vite",
+			"PWA / Workbox",
+			"IndexedDB",
+		],
 		backend: [
-			"Node.js",
+			"Supabase",
 			"PostgreSQL",
-			"API de sincronización",
-			"Resolución de conflictos",
+			"RLS policies",
+			"Funciones RPC SQL",
 		],
-		integrations: [
-			"Mapas y geolocalización",
-			"Panel administrativo web",
-			"Reportes PDF",
-		],
+		integrations: ["EmailJS", "jsPDF", "html5-qrcode", "GitHub Actions CI"],
 		challenge:
-			"Operar sin conexión en obra y sincronizar limpiezas y movilizaciones sin perder datos ni duplicar registros.",
+			"Operar sin conectividad en obras remotas y sincronizar registros de limpieza con GPS sin duplicados, mientras el panel del cliente cargaba en más de 10 segundos con múltiples queries N+1.",
 		features: [
-			"Registro de limpiezas con fecha, operario y evidencia",
-			"Movilizaciones: entrega, retiro y reubicación de unidades",
-			"Cola offline: operaciones pendientes hasta tener red",
-			"Sincronización bidireccional con el servidor central",
-			"Vista de flota: estado por cliente, obra y última visita",
+			"Escaneo QR con captura GPS (offline-first con IndexedDB)",
+			"Sync automático al detectar red: upsert idempotente a Supabase",
+			"Función RPC get_company_panel_snapshot: 5 LATERAL JOINs + JSONB aggregation → 1 sola llamada",
+			"Supervisión individual y masiva de eventos con nombre del supervisor",
+			"Reportes PDF diarios y mensuales con formato contractual industrial",
+			"CI/CD keepalive con GitHub Actions para disponibilidad 24/7 en free tier",
 		],
 		sideFeatures: [
 			{
 				title: "Offline-first",
 				description:
-					"Funciona sin señal en obra gracias a una base de datos local en el dispositivo.",
+					"IndexedDB almacena el catálogo de baños y encola registros. Sync automático al detectar evento online.",
 			},
 			{
-				title: "Sincronización diferida",
+				title: "QR + GPS",
 				description:
-					"Las operaciones se encolan y suben al servidor al recuperar conexión.",
+					"html5-qrcode activa la cámara trasera. La geolocalización tiene fallback de alta a baja precisión.",
 			},
 			{
-				title: "Registro de limpiezas",
+				title: "RPC optimizada",
 				description:
-					"Fecha, operario y evidencia de cada servicio realizado en terreno.",
+					"get_company_panel_snapshot con LATERAL JOINs y JSONB reemplaza decenas de queries. Una sola llamada de red.",
 			},
 			{
-				title: "Movilizaciones",
+				title: "Supervisión formal",
 				description:
-					"Entrega, retiro y reubicación de unidades con trazabilidad completa.",
+					"Checks con nombre del supervisor, observaciones y notificación por email. Batch insert para supervisión masiva.",
 			},
 			{
-				title: "Resolución de conflictos",
+				title: "Reportes contractuales",
 				description:
-					"Sincronización bidireccional sin perder datos ni duplicar registros.",
+					"PDFs generados en el cliente con jsPDF: planillas diarias y mensuales con formato auditado por Techint/OLDVALV.",
 			},
 			{
-				title: "Stack",
+				title: "BaaS sin backend propio",
 				description:
-					"React PWA con Service Workers e IndexedDB; Node.js y PostgreSQL en el back.",
+					"Supabase (PostgREST + GoTrue + RLS) elimina el servidor Node. Toda la lógica de datos en PostgreSQL.",
 			},
 		],
-		imageSrc: createPlaceholderImage(
-			"Baños químicos",
-			"OFFLINE PWA",
-			"#4cc9f0",
-			"#7209b7",
-		),
+		imageSrc: toiletsImg,
+		cardImageSrc: toiletsSafariImg,
+		caseStudy: {
+			projectTitle: "Gestión de Baños Químicos",
+			type: "PWA · Industria",
+			accent: "cyan",
+			context:
+				"Don Fortunato presta servicios de alquiler, limpieza y movilización de baños químicos a empresas industriales (Techint/OLDVALV) en Catriel, Río Negro. El control operativo dependía de planillas en papel, llamadas y registros manuales sin trazabilidad ni evidencia para sus clientes industriales.",
+			problem:
+				"Los operarios trabajan en obras remotas con señal intermitente o nula. Necesitaban registrar limpiezas y movilizaciones con GPS incluso offline. Los supervisores requerían un panel con estado en tiempo real y reportes PDF de auditoría con formato contractual para facturación mensual.",
+			solution:
+				"PWA instalable con arquitectura offline-first. Catálogo de baños descargado a IndexedDB al inicio del turno. El operario escanea el QR del baño, captura GPS y guarda el registro localmente. Al detectar evento online, sync automático via upsert idempotente a Supabase PostgreSQL. El panel de empresa consulta un snapshot optimizado via función RPC con LATERAL JOINs. Los reportes PDF se generan completamente en el cliente con jsPDF.",
+			architecture: [
+				"PWA + Service Worker",
+				"IndexedDB (offline)",
+				"Supabase PostgREST",
+				"PostgreSQL + RLS",
+				"Funciones RPC",
+				"jsPDF client-side",
+			],
+			technicalChallenges: [
+				{
+					title: "Operación sin conectividad",
+					problem:
+						"Obras en Catriel con señal intermitente o nula. Sin internet, los operarios no podían registrar eventos.",
+					solution:
+						"Offline-first con IndexedDB: catálogo de baños descargado al inicio, registros guardados localmente, sync automático al detectar evento online, upsert con ignoreDuplicates para idempotencia.",
+				},
+				{
+					title: "Performance del panel de empresa",
+					problem:
+						"La carga inicial requería múltiples queries .in() con payloads masivos de cleanings y checks, tardando más de 10 segundos.",
+					solution:
+						"Función RPC get_company_panel_snapshot con 5 LATERAL JOINs, JSONB aggregation y filtro de 24h server-side con índices compuestos. Una sola llamada de red reemplaza decenas de queries.",
+				},
+				{
+					title: "Zona horaria en reportes contractuales",
+					problem:
+						"Timestamps UTC vs día de negocio local (UTC-3) causaban eventos asignados al día incorrecto en los PDFs de auditoría.",
+					solution:
+						"Módulo dateTime.ts con BUSINESS_TIMEZONE fijo y función toBusinessDayKey() usada consistentemente en reportes, filtros y validación de duplicados diarios.",
+				},
+			],
+			results: [
+				"Trazabilidad completa de cada baño con evidencia georreferenciada (GPS + timestamp) por limpieza y movilización",
+				"Operación 100% funcional sin conectividad para operarios en obras remotas",
+				"Panel de empresa reducido de múltiples queries lentas a una sola llamada RPC optimizada",
+				"Reportes PDF diarios y mensuales automatizados con formato de planilla contractual industrial",
+				"PWA instalable en Android e iOS con guía de onboarding específica para Safari",
+				"CI/CD keepalive con GitHub Actions para disponibilidad 24/7 del free tier de Supabase",
+			],
+			technologies: [
+				"React 19",
+				"TypeScript",
+				"Vite",
+				"Supabase",
+				"PostgreSQL",
+				"PWA / Workbox",
+				"IndexedDB",
+				"html5-qrcode",
+				"jsPDF",
+				"EmailJS",
+				"Vercel",
+				"GitHub Actions",
+			],
+		},
 	},
 ];
 
@@ -309,7 +524,26 @@ const accentClasses = {
 	cyan: "text-cyan border-cyan/30 bg-cyan/10",
 } satisfies Record<Project["accent"], string>;
 
-function ProjectMockup({ project }: { project: Project }) {
+function ProjectMockup({
+	project,
+	compact = false,
+	sidebar = false,
+}: {
+	project: Project;
+	compact?: boolean;
+	sidebar?: boolean;
+}) {
+	const iphoneWidth = sidebar
+		? "w-[min(195px,100%)]"
+		: compact
+			? "w-[min(200px,100%)] md:w-[min(240px,100%)] xl:w-[min(260px,100%)]"
+			: "w-[min(260px,100%)]";
+	const safariWidth = sidebar
+		? "max-w-[260px]"
+		: compact
+			? "max-w-[280px] md:max-w-[340px] xl:max-w-[400px]"
+			: "max-w-[400px]";
+
 	return (
 		<motion.div
 			key={project.title}
@@ -322,11 +556,11 @@ function ProjectMockup({ project }: { project: Project }) {
 			<div className="absolute -inset-8 rounded-[3rem] bg-gradient-to-br from-violet/25 via-blue-2/10 to-cyan/20 blur-3xl" />
 			<div className="relative mx-auto w-full">
 				{project.mock === "iphone" ? (
-					<div className="mx-auto w-[min(260px,100%)]">
+					<div className={`mx-auto ${iphoneWidth}`}>
 						<Iphone src={project.imageSrc} />
 					</div>
 				) : (
-					<div className="mx-auto w-full max-w-[400px]">
+					<div className={`mx-auto w-full ${safariWidth}`}>
 						<Safari
 							key={project.imageSrc}
 							url={project.url}
@@ -345,10 +579,12 @@ function SideFeatureItem({
 	feature,
 	side,
 	revealed,
+	className,
 }: {
 	feature: SideFeature;
 	side: "left" | "right";
 	revealed: boolean;
+	className?: string;
 }) {
 	const isLeft = side === "left";
 
@@ -369,61 +605,138 @@ function SideFeatureItem({
 						}
 			}
 			transition={{ duration: 0.5, ease: "easeOut" }}
-			className={`w-full max-w-xs ${isLeft ? "ml-auto text-right" : "mr-auto text-left"}`}
+			className={`w-full xl:max-w-xs ${isLeft ? "ml-auto text-right" : "mr-auto text-left"} ${className ?? ""}`}
 		>
-			<h3 className="text-lg text-light xl:text-xl">{feature.title}</h3>
-			<div className="my-2.5 h-px w-full bg-gradient-to-r from-transparent via-light/25 to-transparent" />
-			<p className="text-sm leading-relaxed text-light/55">
+			<h3 className="text-sm text-light md:text-base xl:text-xl">
+				{feature.title}
+			</h3>
+			<div className="my-2 h-px w-full bg-gradient-to-r from-transparent via-light/25 to-transparent md:my-2.5" />
+			<p className="text-xs leading-relaxed text-light/55 md:text-sm">
 				{feature.description}
 			</p>
 		</motion.div>
 	);
 }
 
-function StackCard({
-	icon: Icon,
-	title,
-	items,
-	iconClassName,
+function ProjectStickyActions({
+	project,
+	onCaseStudy,
 }: {
-	icon: typeof Code2;
-	title: string;
-	items: string[];
-	iconClassName: string;
+	project: Project;
+	onCaseStudy: () => void;
 }) {
 	return (
-		<div className="liquid-glass rounded-2xl p-4">
-			<div className={`mb-2.5 flex items-center gap-2 ${iconClassName}`}>
-				<Icon size={16} />
-				<span className="text-xs font-semibold uppercase tracking-wider">
-					{title}
-				</span>
-			</div>
-			<div className="flex flex-wrap gap-1.5">
-				{items.map((item) => (
-					<span
-						key={item}
-						className="rounded-full bg-light/5 px-2.5 py-1 text-[11px] text-light/70"
-					>
-						{item}
-					</span>
-				))}
-			</div>
+		<div className="mt-3 flex flex-wrap items-center justify-center gap-2 md:mt-4 md:gap-3 min-[900px]:mt-6">
+			{project.url && (
+				<a
+					href={`https://${project.url}`}
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label={`Ver ${project.title} en ${project.url}`}
+					className="font-mono text-xs text-light/35 transition-colors cursor-pointer hover:text-cyan"
+				>
+					{project.url}
+				</a>
+			)}
+			{project.repoUrl && (
+				<a
+					href={project.repoUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label={`Repositorio de ${project.title} en GitHub`}
+					className="liquid-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-light/60 transition-colors hover:text-cyan"
+				>
+					<GithubIcon size={14} />
+				</a>
+			)}
+			<button
+				type="button"
+				onClick={onCaseStudy}
+				className="liquid-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-light/60 transition-colors cursor-pointer hover:text-cyan"
+			>
+				<BookOpen size={14} />
+				Ver detalles
+			</button>
 		</div>
 	);
 }
 
-function ProjectDetails({ project }: { project: Project }) {
+function CompactFeatureBatch({
+	projectTitle,
+	features,
+	batchIndex,
+	visibleInBatch,
+}: {
+	projectTitle: string;
+	features: SideFeature[];
+	batchIndex: number;
+	visibleInBatch: number;
+}) {
+	const batchStart = batchIndex * COMPACT_FEATURE_BATCH_SIZE;
+	const batchFeatures = features.slice(
+		batchStart,
+		batchStart + COMPACT_FEATURE_BATCH_SIZE,
+	);
+
+	return (
+		<div className="relative flex min-h-[240px] flex-col justify-center md:min-h-[260px]">
+			<AnimatePresence mode="wait">
+				<motion.div
+					key={`${projectTitle}-batch-${batchIndex}`}
+					initial={{ opacity: 0, x: 28 }}
+					animate={{ opacity: 1, x: 0 }}
+					exit={{ opacity: 0, x: -28 }}
+					transition={{ duration: 0.4, ease: "easeOut" }}
+					className="flex flex-col gap-4 md:gap-5"
+				>
+					{batchFeatures.map((feature, index) => (
+						<SideFeatureItem
+							key={feature.title}
+							feature={feature}
+							side="right"
+							revealed={index < visibleInBatch}
+							className="max-w-full"
+						/>
+					))}
+				</motion.div>
+			</AnimatePresence>
+		</div>
+	);
+}
+
+function ProjectCardMockup({ project }: { project: Project }) {
 	return (
 		<motion.div
 			key={project.title}
-			initial={{ opacity: 0, y: 28 }}
-			animate={{ opacity: 1, y: 0 }}
-			exit={{ opacity: 0, y: -24 }}
-			transition={{ duration: 0.45, ease: "easeOut" }}
-			className="max-h-[calc(100svh-5rem)] overflow-y-auto pr-2 [scrollbar-width:thin] [scrollbar-color:rgba(241,241,241,0.2)_transparent]"
+			initial={{ opacity: 0, y: 32, scale: 0.97 }}
+			animate={{ opacity: 1, y: 0, scale: 1 }}
+			transition={{ duration: 0.5, ease: "easeOut" }}
+			className="relative w-full shrink-0"
 		>
-			<div className="flex flex-wrap items-center gap-3">
+			<div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-violet/20 via-blue-2/10 to-cyan/15 blur-2xl" />
+			<div className="relative mx-auto w-full max-w-[340px]">
+				<Safari
+					key={project.cardImageSrc}
+					url={project.url}
+					imageSrc={project.cardImageSrc}
+					mode="simple"
+					className="w-full drop-shadow-2xl"
+				/>
+			</div>
+		</motion.div>
+	);
+}
+
+function ProjectCardSummary({
+	project,
+	onCaseStudy,
+}: {
+	project: Project;
+	onCaseStudy: () => void;
+}) {
+	return (
+		<div>
+			<div className="flex flex-wrap items-center gap-2">
 				<p
 					className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.24em] ${accentClasses[project.accent]}`}
 				>
@@ -432,7 +745,7 @@ function ProjectDetails({ project }: { project: Project }) {
 				<p className="text-xs text-light/45">{project.role}</p>
 			</div>
 
-			<h2 className="mt-4 text-3xl tracking-tight text-light xl:text-5xl">
+			<h2 className="mt-3 text-2xl tracking-tight text-light">
 				{project.title}
 			</h2>
 			<p
@@ -441,92 +754,22 @@ function ProjectDetails({ project }: { project: Project }) {
 			>
 				{project.tagline}
 			</p>
-			<p className="mt-3 text-sm leading-relaxed text-light/60 xl:text-[15px]">
+			<p className="mt-3 text-sm leading-relaxed text-light/60">
 				{project.description}
 			</p>
 
-			<div className="mt-5 grid grid-cols-3 gap-2">
-				{project.highlights.map((item) => (
-					<div
-						key={item.label}
-						className="liquid-glass rounded-2xl px-3 py-3 text-center"
+			<div className="mt-5 flex flex-wrap items-center gap-3">
+				{project.url && (
+					<a
+						className="font-mono text-xs text-light/35 transition-colors hover:text-cyan"
+						href={`https://${project.url}`}
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label={`Ver ${project.title} en ${project.url}`}
 					>
-						<p className="text-[10px] uppercase tracking-wider text-light/40">
-							{item.label}
-						</p>
-						<p className="mt-1 text-xs font-medium leading-snug text-light/85">
-							{item.value}
-						</p>
-					</div>
-				))}
-			</div>
-
-			<div className="mt-4 grid grid-cols-2 gap-3">
-				<StackCard
-					icon={Code2}
-					title="Frontend"
-					items={project.frontend}
-					iconClassName="text-blue-2"
-				/>
-				<StackCard
-					icon={Database}
-					title="Backend"
-					items={project.backend}
-					iconClassName="text-violet"
-				/>
-				<div className="col-span-2 liquid-glass rounded-2xl p-4">
-					<div className="mb-2 flex items-center gap-2 text-cyan">
-						<Layers size={16} />
-						<span className="text-xs font-semibold uppercase tracking-wider">
-							Integraciones
-						</span>
-					</div>
-					<div className="flex flex-wrap gap-1.5">
-						{project.integrations.map((item) => (
-							<span
-								key={item}
-								className="rounded-full bg-light/5 px-2.5 py-1 text-[11px] text-light/70"
-							>
-								{item}
-							</span>
-						))}
-					</div>
-				</div>
-				<div className="col-span-2 liquid-glass rounded-2xl p-4">
-					<div className="mb-2 flex items-center gap-2 text-violet/90">
-						<Wrench size={16} />
-						<span className="text-xs font-semibold uppercase tracking-wider">
-							Desafío técnico
-						</span>
-					</div>
-					<p className="text-xs leading-relaxed text-light/65">
-						{project.challenge}
-					</p>
-				</div>
-			</div>
-
-			<div className="mt-4 liquid-glass rounded-2xl p-4">
-				<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-light/50">
-					Funcionalidades
-				</p>
-				<ul className="grid gap-2 sm:grid-cols-2">
-					{project.features.map((feature) => (
-						<li
-							key={feature}
-							className="flex items-start gap-2 text-xs leading-relaxed text-light/65"
-						>
-							<Sparkles
-								className="mt-0.5 shrink-0 text-cyan"
-								size={14}
-							/>
-							<span>{feature}</span>
-						</li>
-					))}
-				</ul>
-			</div>
-
-			<div className="mt-4 flex items-center gap-3">
-				<p className="font-mono text-xs text-light/35">{project.url}</p>
+						{project.url}
+					</a>
+				)}
 				{project.repoUrl && (
 					<a
 						href={project.repoUrl}
@@ -536,11 +779,18 @@ function ProjectDetails({ project }: { project: Project }) {
 						className="liquid-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-light/60 transition-colors hover:text-cyan"
 					>
 						<GithubIcon size={14} />
-						Repo
 					</a>
 				)}
+				<button
+					type="button"
+					onClick={onCaseStudy}
+					className="liquid-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-light/60 transition-colors hover:text-cyan cursor-pointer"
+				>
+					<BookOpen size={14} />
+					Ver detalles
+				</button>
 			</div>
-		</motion.div>
+		</div>
 	);
 }
 
@@ -581,7 +831,7 @@ function ProjectsSectionIntro() {
 					}}
 					className="mt-5 max-w-4xl text-4xl tracking-tight text-light md:text-6xl"
 				>
-					Construidos y lanzados para{" "}
+					Productos construidos y lanzados para{" "}
 					<span className="italic text-gradient-accent font-semibold">
 						clientes reales.
 					</span>
@@ -615,6 +865,9 @@ export default function ProjectsSection() {
 	const panelInView = useInView(panelRef, { once: true, amount: 0.5 });
 	const [activeProjectIndex, setActiveProjectIndex] = useState(0);
 	const [revealedFeatures, setRevealedFeatures] = useState(0);
+	const [activeCaseStudy, setActiveCaseStudy] = useState<
+		(typeof projects)[number]["caseStudy"] | null
+	>(null);
 	const { scrollYProgress } = useScroll({
 		target: stickyTrackRef,
 		offset: ["start start", "end end"],
@@ -650,146 +903,195 @@ export default function ProjectsSection() {
 		});
 	});
 
+	const compactFeatureState = getCompactFeatureState(revealedFeatures);
+
 	return (
-		<section
-			id="proyectos"
-			ref={sectionRef}
-			className="relative bg-dark px-6 pb-24 md:pb-32"
-		>
-			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,_rgba(114,9,183,0.16),_transparent_30%),radial-gradient(circle_at_80%_45%,_rgba(72,149,239,0.12),_transparent_34%)]" />
-
-			<ProjectsSectionIntro />
-
-			<div
-				ref={stickyTrackRef}
-				className="relative mx-auto hidden max-w-7xl lg:block"
-				style={{
-					height: `${projects.length * PROJECT_SCROLL_STEP_VH}vh`,
-				}}
+		<>
+			<CaseStudyModal
+				caseStudy={activeCaseStudy}
+				onClose={() => setActiveCaseStudy(null)}
+			/>
+			<section
+				id="proyectos"
+				ref={sectionRef}
+				className="relative bg-dark px-6 pb-24 md:pb-32"
 			>
+				<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,_rgba(114,9,183,0.16),_transparent_30%),radial-gradient(circle_at_80%_45%,_rgba(72,149,239,0.12),_transparent_34%)]" />
+
+				<ProjectsSectionIntro />
+
 				<div
-					ref={panelRef}
-					className="sticky top-0 flex h-svh flex-col items-center justify-center py-10"
+					ref={stickyTrackRef}
+					className="relative mx-auto hidden max-w-7xl min-[500px]:block"
+					style={{
+						height: `${projects.length * PROJECT_SCROLL_STEP_VH}vh`,
+					}}
 				>
-					<motion.div
-						initial={{ opacity: 0, y: 56, scale: 0.97 }}
-						animate={
-							panelInView
-								? { opacity: 1, y: 0, scale: 1 }
-								: { opacity: 0, y: 56, scale: 0.97 }
-						}
-						transition={{ duration: 0.75, ease: "easeOut" }}
-						className="flex w-full flex-col items-center"
+					<div
+						ref={panelRef}
+						className="sticky top-0 flex h-svh flex-col items-center justify-center py-6 md:py-8 xl:py-10"
 					>
-						<div
-							key={activeProject.title}
+						<motion.div
+							initial={{ opacity: 0, y: 56, scale: 0.97 }}
+							animate={
+								panelInView
+									? { opacity: 1, y: 0, scale: 1 }
+									: { opacity: 0, y: 56, scale: 0.97 }
+							}
+							transition={{ duration: 0.75, ease: "easeOut" }}
 							className="flex w-full flex-col items-center"
 						>
-							<motion.header
-								initial={{ opacity: 0, y: -18 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.5, ease: "easeOut" }}
-								className="mb-10 flex flex-col items-center text-center xl:mb-12"
+							<div
+								key={activeProject.title}
+								className="flex w-full flex-col items-center gap-10"
 							>
-								<div className="flex flex-wrap items-center justify-center gap-4">
-									<span
-										className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.24em] ${accentClasses[activeProject.accent]}`}
-									>
-										{activeProject.type}
-									</span>
-									<h2 className="text-3xl tracking-tight text-light xl:text-4xl">
-										{activeProject.title}
-									</h2>
-								</div>
-								<p
-									className="mt-3 text-base italic text-light/55"
-									style={{
-										fontFamily: "'Instrument Serif', serif",
+								<motion.header
+									initial={{ opacity: 0, y: -18 }}
+									animate={{ opacity: 1, y: 0 }}
+									transition={{
+										duration: 0.5,
+										ease: "easeOut",
 									}}
+									className="mb-4 flex flex-col items-center text-center min-[900px]:mb-8 xl:mb-12"
 								>
-									{activeProject.tagline}
-								</p>
-								<p className="mt-3 max-w-2xl text-sm leading-relaxed text-light/60">
-									{activeProject.description}
-								</p>
-							</motion.header>
+									<div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+										<span
+											className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.24em] ${accentClasses[activeProject.accent]}`}
+										>
+											{activeProject.type}
+										</span>
+										<h2 className="text-2xl tracking-tight text-light md:text-3xl xl:text-4xl">
+											{activeProject.title}
+										</h2>
+									</div>
+									<p
+										className="mt-2 text-sm italic text-light/55 md:mt-3 md:text-base"
+										style={{
+											fontFamily:
+												"'Instrument Serif', serif",
+										}}
+									>
+										{activeProject.tagline}
+									</p>
+									<p className="mt-2 max-w-2xl text-xs leading-relaxed text-light/60 md:mt-3 md:text-sm">
+										{activeProject.description}
+									</p>
+								</motion.header>
 
-							<div className="grid w-full grid-cols-[1fr_minmax(260px,420px)_1fr] items-center gap-8 xl:gap-14">
-								<div className="flex flex-col items-end gap-10 xl:gap-12">
-									{leftFeatures.map(({ feature, index }) => (
-										<SideFeatureItem
-											key={feature.title}
-											feature={feature}
-											side="left"
-											revealed={index < revealedFeatures}
+								{/* Layout compacto: mock izquierda + features en batches (768–899px) */}
+								<div className="grid w-full grid-cols-[minmax(195px,48%)_1fr] items-center gap-3 md:gap-4 min-[900px]:hidden">
+									<div className="flex flex-col items-center justify-center">
+										<ProjectMockup
+											project={activeProject}
+											sidebar
 										/>
-									))}
+										<ProjectStickyActions
+											project={activeProject}
+											onCaseStudy={() =>
+												setActiveCaseStudy(
+													activeProject.caseStudy,
+												)
+											}
+										/>
+									</div>
+
+									<CompactFeatureBatch
+										projectTitle={activeProject.title}
+										features={activeProject.sideFeatures}
+										batchIndex={
+											compactFeatureState.batchIndex
+										}
+										visibleInBatch={
+											compactFeatureState.visibleInBatch
+										}
+									/>
 								</div>
 
-								<div className="flex min-h-[220px] w-full shrink-0 flex-col items-center justify-center text-center">
-									<ProjectMockup project={activeProject} />
-									<div className="mt-6 flex items-center gap-3">
-										<p className="font-mono text-xs text-light/35">
-											{activeProject.url}
-										</p>
-										{activeProject.repoUrl && (
-											<a
-												href={activeProject.repoUrl}
-												target="_blank"
-												rel="noopener noreferrer"
-												aria-label={`Repositorio de ${activeProject.title} en GitHub`}
-												className="liquid-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-light/60 transition-colors hover:text-cyan"
-											>
-												<GithubIcon size={14} />
-												Repositorio
-											</a>
+								{/* Layout amplio: mock centro + features a ambos lados (≥900px) */}
+								<div className="hidden w-full grid-cols-[1fr_minmax(200px,420px)_1fr] items-center gap-4 min-[900px]:grid md:grid-cols-[1fr_minmax(240px,420px)_1fr] md:gap-6 xl:grid-cols-[1fr_minmax(260px,420px)_1fr] xl:gap-14">
+									<div className="flex flex-col items-end gap-6 md:gap-8 xl:gap-12">
+										{leftFeatures.map(
+											({ feature, index }) => (
+												<SideFeatureItem
+													key={feature.title}
+													feature={feature}
+													side="left"
+													revealed={
+														index < revealedFeatures
+													}
+												/>
+											),
+										)}
+									</div>
+
+									<div className="flex min-h-[180px] w-full shrink-0 flex-col items-center justify-center text-center md:min-h-[200px] xl:min-h-[220px]">
+										<ProjectMockup
+											project={activeProject}
+											compact
+										/>
+										<ProjectStickyActions
+											project={activeProject}
+											onCaseStudy={() =>
+												setActiveCaseStudy(
+													activeProject.caseStudy,
+												)
+											}
+										/>
+									</div>
+
+									<div className="flex flex-col items-start gap-6 md:gap-8 xl:gap-12">
+										{rightFeatures.map(
+											({ feature, index }) => (
+												<SideFeatureItem
+													key={feature.title}
+													feature={feature}
+													side="right"
+													revealed={
+														index < revealedFeatures
+													}
+												/>
+											),
 										)}
 									</div>
 								</div>
-
-								<div className="flex flex-col items-start gap-10 xl:gap-12">
-									{rightFeatures.map(({ feature, index }) => (
-										<SideFeatureItem
-											key={feature.title}
-											feature={feature}
-											side="right"
-											revealed={index < revealedFeatures}
-										/>
-									))}
-								</div>
 							</div>
-						</div>
 
-						<div className="mt-12 flex gap-2">
-							{projects.map((project, index) => (
-								<span
-									key={project.title}
-									aria-hidden="true"
-									className={`h-2.5 rounded-full transition-all ${
-										index === activeProjectIndex
-											? "w-10 bg-cyan"
-											: "w-2.5 bg-light/20"
-									}`}
-								/>
-							))}
-						</div>
-					</motion.div>
+							<div className="mt-8 flex gap-2 md:mt-10 xl:mt-12">
+								{projects.map((project, index) => (
+									<span
+										key={project.title}
+										aria-hidden="true"
+										className={`h-2.5 rounded-full transition-all ${
+											index === activeProjectIndex
+												? "w-10 bg-cyan"
+												: "w-2.5 bg-light/20"
+										}`}
+									/>
+								))}
+							</div>
+						</motion.div>
+					</div>
 				</div>
-			</div>
 
-			<div className="relative mx-auto grid max-w-6xl gap-10 lg:hidden">
-				{projects.map((project) => (
-					<article
-						key={project.title}
-						className="liquid-glass rounded-[2rem] p-5"
-					>
-						<ProjectMockup project={project} />
-						<div className="mt-8">
-							<ProjectDetails project={project} />
-						</div>
-					</article>
-				))}
-			</div>
-		</section>
+				<div className="relative mx-auto grid max-w-6xl gap-10 min-[500px]:hidden">
+					{projects.map((project) => (
+						<article
+							key={project.title}
+							className="liquid-glass rounded-[2rem] p-5"
+						>
+							<ProjectCardMockup project={project} />
+							<div className="mt-6">
+								<ProjectCardSummary
+									project={project}
+									onCaseStudy={() =>
+										setActiveCaseStudy(project.caseStudy)
+									}
+								/>
+							</div>
+						</article>
+					))}
+				</div>
+			</section>
+		</>
 	);
 }

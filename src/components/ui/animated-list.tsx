@@ -19,7 +19,7 @@ export function AnimatedListItem({ children }: { children: ReactNode }) {
 	};
 
 	return (
-		<motion.div {...animations} layout className="mx-auto w-full">
+		<motion.div {...animations} layout className="mx-auto w-full min-w-0 max-w-md lg:max-w-none">
 			{children}
 		</motion.div>
 	);
@@ -40,16 +40,21 @@ export const AnimatedList = memo(
 		...props
 	}: AnimatedListProps) => {
 		const [index, setIndex] = useState(0);
+		const [prevActive, setPrevActive] = useState(active);
 		const childrenArray = useMemo(
 			() => Children.toArray(children),
 			[children],
 		);
 
-		useEffect(() => {
+		if (active !== prevActive) {
+			setPrevActive(active);
 			if (!active) {
 				setIndex(0);
-				return;
 			}
+		}
+
+		useEffect(() => {
+			if (!active) return;
 
 			let timeout: ReturnType<typeof setTimeout> | null = null;
 

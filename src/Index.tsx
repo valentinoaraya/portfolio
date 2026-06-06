@@ -95,35 +95,33 @@ export default function Index() {
 								</span>
 							</div>
 							<div className="flex items-center gap-4">
-								<div className="ml-8 hidden items-center gap-8 md:flex">
-									{navLinks.map(
-										({ label, href }) => (
-											<a
-												key={label}
-												href={href}
-												className="text-sm font-medium text-dark/65 transition-colors hover:text-violet"
-											>
-												{label}
-											</a>
-										),
-									)}
+								<div className="ml-8 hidden items-center gap-8 min-[480px]:flex">
+									{navLinks.map(({ label, href }) => (
+										<a
+											key={label}
+											href={href}
+											className="text-sm font-medium text-dark/65 transition-colors hover:text-violet"
+										>
+											{label}
+										</a>
+									))}
 								</div>
 							</div>
 						</div>
 					</nav>
 
-					<div className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 pb-6 pt-2 text-center md:max-h-[50vh]">
-						<h1 className="whitespace-nowrap text-6xl tracking-tight text-dark sm:text-7xl md:text-8xl lg:text-9xl">
+					<div className="flex min-h-0 flex-1 max-h-[50vh] shrink-0 flex-col items-center justify-center px-6 pb-6 pt-2 text-center">
+						<h1 className="text-4xl tracking-tight text-dark min-[480px]:text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl">
 							Valentino Araya
 						</h1>
 						<h2
-							className="text-6xl text-violet mt-6 italic"
+							className="mt-4 text-3xl text-violet italic min-[480px]:mt-5 min-[480px]:text-4xl sm:mt-6 sm:text-5xl md:text-6xl"
 							style={{ fontFamily: "'Instrument Serif', serif" }}
 						>
 							Desarrollador Full Stack
 						</h2>
 
-						<p className="mt-5 max-w-3xl px-4 text-2xl leading-relaxed text-dark/70 md:mt-6">
+						<p className="mt-4 max-w-3xl px-4 text-base leading-relaxed text-dark/70 min-[480px]:mt-5 min-[480px]:text-lg sm:mt-6 sm:text-xl md:text-2xl">
 							Enfocado en crear productos de software completos
 							con{" "}
 							<span className="text-blue-2 font-bold">React</span>{" "}
@@ -141,7 +139,7 @@ export default function Index() {
 							href={CV_GOOGLE_DRIVE_URL}
 							target="_blank"
 							rel="noopener noreferrer"
-							className="liquid-glass-light mt-8 inline-flex items-center justify-center rounded-full px-8 py-3 text-sm font-semibold text-dark/80 transition-colors hover:text-violet md:mt-10"
+							className="liquid-glass-light mt-6 inline-flex items-center justify-center rounded-full px-8 py-3 text-sm font-semibold text-dark/80 transition-colors hover:text-violet sm:mt-8"
 						>
 							<Globe className="text-violet mr-2" size={20} />
 							Ver CV

@@ -100,19 +100,19 @@ export default function ContactSection() {
 	};
 
 	const inputClass =
-		"w-full rounded-xl border border-dark/15 bg-white px-4 py-3 text-base text-dark placeholder:text-dark/35 outline-none transition-all focus:border-violet/50 focus:ring-2 focus:ring-violet/15";
+		"min-w-0 w-full rounded-xl border border-dark/15 bg-white px-3 py-2.5 text-sm text-dark placeholder:text-dark/35 outline-none transition-all focus:border-violet/50 focus:ring-2 focus:ring-violet/15 sm:px-4 sm:py-3 sm:text-base";
 
 	return (
 		<section
 			id="contacto"
 			ref={ref}
-			className="relative overflow-hidden bg-light px-6 py-24 md:py-32"
+			className="relative overflow-x-hidden bg-light px-4 py-20 sm:px-6 sm:py-24 md:py-32"
 		>
 			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_100%,_rgba(114,9,183,0.06),_transparent_45%)]" />
 
-			<div className="relative mx-auto max-w-6xl">
-				<div className="grid gap-16 lg:grid-cols-2 lg:gap-24">
-					<div>
+			<div className="relative mx-auto min-w-0 max-w-6xl">
+				<div className="grid min-w-0 gap-10 sm:gap-16 lg:grid-cols-2 lg:gap-24">
+					<div className="min-w-0">
 						<motion.p
 							initial={{ opacity: 0 }}
 							animate={isInView ? { opacity: 1 } : {}}
@@ -126,7 +126,7 @@ export default function ContactSection() {
 							initial={{ opacity: 0, y: 30 }}
 							animate={isInView ? { opacity: 1, y: 0 } : {}}
 							transition={{ duration: 0.7, delay: 0.1 }}
-							className="mt-5 text-4xl tracking-tight text-dark md:text-5xl lg:text-6xl"
+							className="mt-4 text-3xl tracking-tight text-dark sm:mt-5 sm:text-4xl md:text-5xl lg:text-6xl"
 						>
 							Trabajemos{" "}
 							<span
@@ -144,7 +144,7 @@ export default function ContactSection() {
 							initial={{ opacity: 0, y: 20 }}
 							animate={isInView ? { opacity: 1, y: 0 } : {}}
 							transition={{ duration: 0.7, delay: 0.2 }}
-							className="mt-6 text-lg leading-relaxed text-dark/60 md:text-xl"
+							className="mt-4 text-base leading-relaxed text-dark/60 sm:mt-6 sm:text-lg md:text-xl"
 						>
 							¿Tenés un proyecto en mente o querés mejorar algo
 							que ya existe? Mandame un mensaje y lo hablamos.
@@ -154,19 +154,21 @@ export default function ContactSection() {
 							initial={{ opacity: 0, y: 20 }}
 							animate={isInView ? { opacity: 1, y: 0 } : {}}
 							transition={{ duration: 0.7, delay: 0.3 }}
-							className="mt-10 flex flex-col gap-4"
+							className="mt-8 flex flex-col gap-4 sm:mt-10"
 						>
 							<a
 								href={`mailto:${CONTACT_EMAIL}`}
-								className="group flex items-center gap-3 text-base font-medium text-dark/70 transition-colors hover:text-violet"
+								className="group flex min-w-0 items-center gap-2.5 text-sm font-medium text-dark/70 transition-colors hover:text-violet sm:gap-3 sm:text-base"
 							>
-								<span className="flex size-9 items-center justify-center rounded-full border border-dark/15 bg-white text-dark/60 transition-colors group-hover:border-violet/30 group-hover:text-violet">
+								<span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-dark/15 bg-white text-dark/60 transition-colors group-hover:border-violet/30 group-hover:text-violet">
 									<Mail size={16} />
 								</span>
-								{CONTACT_EMAIL}
+								<span className="min-w-0 break-all">
+									{CONTACT_EMAIL}
+								</span>
 								<ArrowRight
 									size={14}
-									className="opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100"
+									className="hidden shrink-0 opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100 sm:block"
 								/>
 							</a>
 
@@ -191,12 +193,13 @@ export default function ContactSection() {
 						initial={{ opacity: 0, x: 30 }}
 						animate={isInView ? { opacity: 1, x: 0 } : {}}
 						transition={{ duration: 0.7, delay: 0.25 }}
+						className="min-w-0 w-full"
 					>
 						{formState === "sent" ? (
 							<motion.div
 								initial={{ opacity: 0, scale: 0.95 }}
 								animate={{ opacity: 1, scale: 1 }}
-								className="flex h-full flex-col items-center justify-center gap-4 rounded-3xl border border-dark/10 bg-white px-10 py-16 text-center"
+								className="flex h-full flex-col items-center justify-center gap-4 rounded-2xl border border-dark/10 bg-white px-5 py-12 text-center sm:rounded-3xl sm:px-10 sm:py-16"
 							>
 								<div className="flex size-16 items-center justify-center rounded-full bg-violet/10 text-violet">
 									<Send size={26} />
@@ -219,10 +222,10 @@ export default function ContactSection() {
 						) : (
 							<form
 								onSubmit={handleSubmit}
-								className="flex flex-col gap-5 rounded-3xl border border-dark/10 bg-white p-8 md:p-10"
+								className="flex w-full min-w-0 flex-col gap-4 rounded-2xl border border-dark/10 bg-white p-4 sm:gap-5 sm:rounded-3xl sm:p-6 md:p-10"
 							>
-								<div className="grid gap-4 sm:grid-cols-2">
-									<div className="flex flex-col gap-1.5">
+								<div className="grid min-w-0 gap-4 sm:grid-cols-2">
+									<div className="flex min-w-0 flex-col gap-1.5">
 										<label
 											htmlFor="name"
 											className="text-sm font-medium text-dark/70"
@@ -240,7 +243,7 @@ export default function ContactSection() {
 											className={inputClass}
 										/>
 									</div>
-									<div className="flex flex-col gap-1.5">
+									<div className="flex min-w-0 flex-col gap-1.5">
 										<label
 											htmlFor="email"
 											className="text-sm font-medium text-dark/70"
@@ -260,7 +263,7 @@ export default function ContactSection() {
 									</div>
 								</div>
 
-								<div className="flex flex-col gap-1.5">
+								<div className="flex min-w-0 flex-col gap-1.5">
 									<label
 										htmlFor="message"
 										className="text-sm font-medium text-dark/70"
@@ -282,7 +285,7 @@ export default function ContactSection() {
 								<button
 									type="submit"
 									disabled={formState === "sending"}
-									className="group mt-1 flex items-center justify-center gap-2 rounded-xl bg-violet px-6 py-3.5 text-base font-semibold text-white transition-all hover:bg-violet/90 disabled:opacity-70"
+									className="group mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-violet px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-violet/90 disabled:opacity-70 sm:px-6 sm:py-3.5 sm:text-base"
 								>
 									{formState === "sending"
 										? "Preparando..."

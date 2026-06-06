@@ -10,53 +10,63 @@ import {
 } from "lucide-react";
 
 const layeredArchitecture = [
-	"Endpoint",
+	"Router",
 	"Controller",
 	"Service",
 	"Repository",
-	"DB",
+	"DB / BaaS",
 ];
 
-const backendPractices = ["DRY", "KISS", "YAGNI", "SOLID"];
+const backendPractices = ["DRY", "KISS", "YAGNI", "SOLID", "TDD"];
 
 const backendPoints = [
 	{
 		title: "TDD antes de implementar",
 		description:
-			"Escribo los tests primero para definir el comportamiento esperado y recién después codeo la funcionalidad.",
+			"En Tu Repe: 50 archivos de test con Jest + Supertest antes de codear la funcionalidad. Testeo unit, integration y escenarios de fallo (ingesta corrupta, webhooks duplicados, red caída).",
 	},
 	{
-		title: "Arquitectura adecuada al problema",
+		title: "Layered Architecture como base",
 		description:
-			"Elijo el patrón según el caso. En general una Layered Architecture, separando responsabilidades por capa.",
+			"Router → Controller → Service → Repository → DB. Cada capa tiene una sola responsabilidad. Facilita testear, escalar y reemplazar partes sin romper todo.",
 	},
 	{
-		title: "ORMs cuando suman",
+		title: "ORM o SQL directo según el contexto",
 		description:
-			"Me gusta trabajar con Prisma, aunque también desarrollé proyectos con SQL directo cuando el contexto lo pide.",
+			"Mongoose para MongoDB + Mongoose en Bookify (lógica relacional liviana), MySQL 8 con queries SQL directo en Tu Repe (performance crítica y 34 migraciones versionadas), Supabase PostgREST en baños.",
 	},
 	{
 		title: "Docker para entornos reproducibles",
 		description:
-			"Contenedores para que el proyecto corra igual en desarrollo, en otra máquina y en producción.",
+			"Containerizo el stack de desarrollo para evitar el 'funciona en mi máquina'. MySQL + Node en Compose, misma configuración en dev y prod.",
+	},
+	{
+		title: "Resiliencia y manejo de fallos",
+		description:
+			"No solo el happy path. Backoff exponencial para uploads fallidos, idempotency keys en webhooks de pagos, upsert idempotente para sync offline, reintentos con BullMQ.",
 	},
 ];
 
 const frontendPoints = [
 	{
-		title: "Primero el mock o prototipo",
+		title: "Primero el diseño, luego el código",
 		description:
-			"Antes de codear defino el diseño: generado por IA, inspirado en otras páginas o armado por mí.",
+			"Antes de codear defino el UI: wireframe propio, referencia de diseño o mockup generado con IA. En Bookify usé Ant Design + FullCalendar. Este portfolio lo diseñé desde cero.",
 	},
 	{
-		title: "React con componentes reutilizables",
+		title: "React con estado bien estructurado",
 		description:
-			"Implemento con buenas prácticas y piezas reutilizables, evitando duplicar lógica y estilos.",
+			"Zustand para estado global liviano (Tu Repe), Context API para theming y sesión (Bookify), estado local para formularios y UI. Evito re-renders innecesarios con memoización selectiva.",
 	},
 	{
-		title: "Eficiencia y rendimiento",
+		title: "TypeScript en todo el stack",
 		description:
-			"Priorizo cargas rápidas, renders controlados y una experiencia fluida en cualquier dispositivo.",
+			"Tipos compartidos entre frontend y backend, interfaces para contratos de API, discriminated unions para estados de máquina (turno: pending | confirmed | cancelled | refunded).",
+	},
+	{
+		title: "Performance y experiencia en campo",
+		description:
+			"PWA instalable con Service Workers para offline-first (baños químicos), lazy loading de imágenes, seek preciso en video sin descargar el archivo completo (Tu Repe), skeleton loaders.",
 	},
 ];
 
@@ -183,11 +193,40 @@ export default function WorkflowSection() {
 							</div>
 						</div>
 
-						<div className="mt-7 flex items-center gap-2 text-sm text-light/55">
-							<Boxes size={18} className="text-blue-2/80" />
+						<div className="mt-7">
+							<p className="text-xs uppercase tracking-widest text-light/40">
+								Stack backend actual
+							</p>
+							<div className="mt-3 flex flex-wrap gap-2">
+								{[
+									"Node.js",
+									"Express 5",
+									"TypeScript",
+									"MySQL 8",
+									"MongoDB",
+									"Redis",
+									"BullMQ",
+									"Socket.io",
+									"Docker",
+									"Jest",
+								].map((tech) => (
+									<span
+										key={tech}
+										className="rounded-full border border-light/10 bg-light/5 px-3 py-1 text-xs font-medium text-light/70"
+									>
+										{tech}
+									</span>
+								))}
+							</div>
+						</div>
+						<div className="mt-4 flex items-center gap-2 text-sm text-light/50">
+							<Boxes
+								size={16}
+								className="text-blue-2/70 shrink-0"
+							/>
 							<span>
-								Docker para entornos consistentes y
-								desplegables.
+								Docker Compose para que dev y prod sean
+								idénticos.
 							</span>
 						</div>
 					</motion.div>
@@ -216,19 +255,25 @@ export default function WorkflowSection() {
 
 						<div className="mt-7">
 							<p className="text-xs uppercase tracking-widest text-light/40">
-								De dónde sale el mock
+								Stack frontend actual
 							</p>
 							<div className="mt-3 flex flex-wrap gap-2">
 								{[
-									"Generado por IA",
-									"Inspirado en otras páginas",
-									"Diseñado por mí",
-								].map((source) => (
+									"React 19",
+									"TypeScript",
+									"Vite",
+									"Tailwind",
+									"Zustand",
+									"Framer Motion",
+									"Ant Design",
+									"FullCalendar",
+									"PWA / Workbox",
+								].map((tech) => (
 									<span
-										key={source}
-										className="rounded-full border border-blue-2/20 bg-blue-2/5 px-3 py-1 text-xs font-semibold text-blue-2/90"
+										key={tech}
+										className="rounded-full border border-blue-2/20 bg-blue-2/5 px-3 py-1 text-xs font-medium text-blue-2/80"
 									>
-										{source}
+										{tech}
 									</span>
 								))}
 							</div>
@@ -250,22 +295,23 @@ export default function WorkflowSection() {
 							Despliegue a producción
 						</p>
 						<h3 className="mt-1 text-2xl font-semibold tracking-tight text-light">
-							De local a un VPS
+							VPS Linux · Vercel · Supabase
 						</h3>
 						<p className="mt-3 text-base leading-relaxed text-light/60 md:text-lg">
-							Tengo experiencia desplegando aplicaciones a
-							producción en un servidor{" "}
-							<span className="text-light">VPS Linux</span>:
-							configurándolo desde cero y{" "}
+							Tengo experiencia desplegando aplicaciones y
+							configurando servidores desde cero: VPS Linux con
+							nginx y HTTPS, setup completo para backends y
+							Supabase para proyectos serverless como el de baños.
 							<span className="inline-flex items-center gap-1 text-light">
 								<ShieldAlert
 									size={16}
 									className="text-pink/80"
 								/>
-								aprendiendo de los errores,
+								Me hackearon una vez:{" "}
 							</span>{" "}
-							incluido el día que me hackearon, que me enseñó a
-							endurecer la seguridad del servidor.
+							aprendí sobre fail2ban, SSH hardening, firewall UFW
+							y monitoreo de logs más rápido que con cualquier
+							tutorial. GitHub Actions para CI/CD.
 						</p>
 					</div>
 				</motion.div>

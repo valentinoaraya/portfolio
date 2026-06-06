@@ -1,10 +1,10 @@
 const frameModules = import.meta.glob<string>(
-	"../assets/frames/ezgif-frame-*.jpg",
+	"../assets/frames/ezgif-frame-*.webp",
 	{ eager: true, query: "?url", import: "default" },
 );
 
 function frameNumber(path: string): number {
-	const match = path.match(/ezgif-frame-(\d+)\.jpg$/);
+	const match = path.match(/ezgif-frame-(\d+)\.webp$/);
 	return match ? parseInt(match[1], 10) : 0;
 }
 
@@ -54,5 +54,10 @@ export function getHeroScrollMetrics(scrolled: number) {
 		(1 - VIDEO_EXPAND_START_RATIO);
 	const expandProgress = clamp(expandDelayed);
 
-	return { textProgress, contentFadeProgress, expandProgress, scrubStart: textEnd };
+	return {
+		textProgress,
+		contentFadeProgress,
+		expandProgress,
+		scrubStart: textEnd,
+	};
 }

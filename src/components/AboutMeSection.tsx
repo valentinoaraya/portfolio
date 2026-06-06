@@ -6,29 +6,36 @@ const milestones = [
 		year: "2021",
 		title: "Primeras líneas de código",
 		description:
-			"Empecé a programar en la secundaria. Variables, bucles y la emoción de ver algo funcionar en pantalla por primera vez. Ahí supe que esto era lo mío.",
+			"Empecé a programar en la secundaria, autodidacta desde YouTube y documentaciones. Variables, lógica, la emoción de ver algo funcionar. Ahí supe que era lo mío.",
 		color: "#7209b7",
 	},
 	{
 		year: "2022",
 		title: "Carrera Full Stack · CoderHouse",
 		description:
-			"Me metí de lleno con React, Node.js y bases de datos. Primer contacto real con proyectos completos de principio a fin y con el trabajo en equipo.",
+			"React, Node.js, Express y bases de datos SQL y NoSQL. Primer contacto serio con el stack completo y con proyectos de principio a fin. Aprendí a trabajar con herramientas reales.",
 		color: "#4895ef",
 	},
 	{
 		year: "2023",
-		title: "Ingeniería en Sistemas",
+		title: "Ingeniería en Sistemas · UTN",
 		description:
-			"Inicié la carrera universitaria para sumar los fundamentos formales: algoritmos, arquitectura de software, matemática discreta y estructuras de datos.",
+			"Arranqué la carrera formal para sumar los fundamentos que la práctica no da: algoritmos, matemática discreta, arquitectura de computadoras, estructuras de datos y gestión de proyectos.",
 		color: "#4cc9f0",
 	},
 	{
-		year: "Hoy",
-		title: "Freelancer & aprendizaje continuo",
+		year: "2024",
+		title: "Primer proyecto en producción",
 		description:
-			"Trabajo con clientes reales, termino la carrera y aprendo de forma autodidacta. Me adapto a los cambios del ecosistema y cada proyecto me deja algo nuevo.",
+			"Deployed en un VPS Linux. Configuré el servidor desde cero, nginx, HTTPS, variables de entorno. Me hackearon una vez y aprendí sobre seguridad más rápido que con cualquier tutorial.",
 		color: "#7209b7",
+	},
+	{
+		year: "Hoy",
+		title: "Freelancer Full Stack · clientes reales",
+		description:
+			"Mientras finalizo mis estudios, construyo apps completas que resuelven problemas reales. Estoy abierto a nuevas oportunidades y me encantaría trabajar en proyectos interesantes.",
+		color: "#4895ef",
 	},
 ];
 
@@ -123,7 +130,7 @@ export default function AboutMeSection() {
 							transition={{ duration: 0.7, delay: 0.1 }}
 							className="mt-5 text-4xl tracking-tight text-dark md:text-6xl"
 						>
-							Estudiante e{" "}
+							Full Stack freelance,{" "}
 							<span
 								className="italic"
 								style={{
@@ -133,7 +140,7 @@ export default function AboutMeSection() {
 							>
 								ingeniero
 							</span>{" "}
-							en construcción
+							en formación
 						</motion.h2>
 
 						<motion.div
@@ -146,19 +153,26 @@ export default function AboutMeSection() {
 								Soy{" "}
 								<span className="font-semibold text-dark">
 									estudiante avanzado de Ingeniería en
-									Sistemas
+									Sistemas (UTN)
 								</span>{" "}
-								(4to año) y desarrollador Full Stack freelance.
-								Construyo software real para clientes reales:
-								desde apps móviles hasta plataformas web
-								completas.
+								y desarrollador Full Stack freelance. Construyo
+								productos completos: APIs REST, PWAs
+								offline-first, pipelines de video, pagos
+								automáticos y paneles en tiempo real.
 							</p>
 							<p>
-								Combino la base técnica de la universidad con el
-								aprendizaje autodidacta y la experiencia directa
-								en producción. Me muevo bien tanto en el backend
-								como en el frontend, y disfruto especialmente de
-								los problemas donde las dos partes se cruzan.
+								Trabajo con{" "}
+								<span className="font-semibold text-dark">
+									TypeScript, React, Node.js, Express, MySQL,
+									MongoDB y Supabase
+								</span>
+								. Tengo experiencia desplegando aplicaciones en
+								VPS Linux, Vercel y Supabase, incluyendo la
+								parte más costosa: los errores en producción.
+							</p>
+							<p>
+								Me gusta seguir aprendiendo, adaptarme a las
+								nuevas tecnologías y mejorar mis habilidades.
 							</p>
 						</motion.div>
 					</div>
