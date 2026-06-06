@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLenisRef } from "./useLenis";
 import { drawCoverFrame, resizeCanvas } from "../lib/drawFrame";
 import {
 	frameUrls,
@@ -41,6 +42,8 @@ export function useHeroScroll(
 		};
 	}, []);
 
+	const lenisRef = useLenisRef();
+
 	useEffect(() => {
 		if (!isReady) return;
 
@@ -49,6 +52,10 @@ export function useHeroScroll(
 		const content = contentRef.current;
 		const videoZone = videoZoneRef.current;
 		if (!container || !canvas || !content || !videoZone) return;
+
+		let cancelled = false;
+		let retryRaf = 0;
+		let unsubscribeScroll: (() => void) | undefined;
 
 		const renderFrame = (frameIndex: number) => {
 			const image = imagesRef.current[frameIndex];
@@ -70,14 +77,15 @@ export function useHeroScroll(
 				0,
 				-container.getBoundingClientRect().top,
 			);
-			const { textProgress, expandProgress, scrubStart } =
+			const { contentFadeProgress, expandProgress, scrubStart } =
 				getHeroScrollMetrics(scrolled);
 
 			expandProgressRef.current = expandProgress;
 
-			const textOpacity = 1 - textProgress;
+			const textOpacity = 1 - contentFadeProgress;
+			const liftPx = contentFadeProgress * 80;
 			content.style.opacity = String(textOpacity);
-			content.style.transform = `translateY(${-textProgress * 48}px)`;
+			content.style.transform = `translateY(${-liftPx}px)`;
 			content.style.pointerEvents = textOpacity < 0.15 ? "none" : "auto";
 
 			const videoOffset = (1 - expandProgress) * 50;
@@ -103,21 +111,35 @@ export function useHeroScroll(
 		};
 
 		const onResize = () => {
+			lenisRef.current?.resize();
 			syncCanvasSize();
 			updateFromScroll();
 		};
 
-		syncCanvasSize();
-		updateFromScroll();
+		const attachLenis = () => {
+			if (cancelled) return;
 
-		window.addEventListener("scroll", updateFromScroll, { passive: true });
+			const lenis = lenisRef.current;
+			if (!lenis) {
+				retryRaf = requestAnimationFrame(attachLenis);
+				return;
+			}
+
+			syncCanvasSize();
+			updateFromScroll();
+			unsubscribeScroll = lenis.on("scroll", updateFromScroll);
+		};
+
+		attachLenis();
 		window.addEventListener("resize", onResize);
 
 		return () => {
-			window.removeEventListener("scroll", updateFromScroll);
+			cancelled = true;
+			cancelAnimationFrame(retryRaf);
+			unsubscribeScroll?.();
 			window.removeEventListener("resize", onResize);
 		};
-	}, [containerRef, isReady]);
+	}, [containerRef, isReady, lenisRef]);
 
 	return {
 		canvasRef,

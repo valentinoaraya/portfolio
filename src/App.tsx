@@ -1,18 +1,29 @@
 import Index from "./Index";
-import AboutSection from "./components/AboutSection";
-import FeaturedVideoSection from "./components/FeaturedVideoSection";
-import PhilosophySection from "./components/PhilosophySection";
-import ServicesSection from "./components/ServicesSection";
+import AboutMeSection from "./components/AboutMeSection";
+import ChallengesSection from "./components/ChallengesSection";
+import ContactSection from "./components/ContactSection";
+import Footer from "./components/Footer";
+import ProjectsSection from "./components/ProjectsSection";
+import StatsSection from "./components/StatsSection";
+import WorkflowSection from "./components/WorkflowSection";
+import { LenisProvider } from "./context/LenisProvider";
 
 function App() {
 	return (
-		<div className="bg-dark">
-			<Index />
-			<AboutSection />
-			<FeaturedVideoSection />
-			<PhilosophySection />
-			<ServicesSection />
-		</div>
+		<LenisProvider>
+			<div className="bg-dark">
+				<Index />
+				<ProjectsSection />
+				<ChallengesSection />
+				<WorkflowSection />
+				<div className="relative">
+					<StatsSection />
+					<AboutMeSection />
+				</div>
+				<ContactSection />
+				<Footer />
+			</div>
+		</LenisProvider>
 	);
 }
 

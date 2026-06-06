@@ -7,6 +7,7 @@ export default function AboutSection() {
 
 	return (
 		<section
+			id="sobre-mi"
 			ref={ref}
 			className="relative overflow-hidden bg-dark  px-6 pb-10 pt-32 md:pb-14 md:pt-44"
 		>

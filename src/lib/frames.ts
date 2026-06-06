@@ -26,6 +26,12 @@ export const TEXT_ANIMATION_END_VH = 40;
 
 export const HERO_SCROLL_INTRO_VH = TEXT_ANIMATION_END_VH;
 
+/** El contenido termina de desvanecerse al llegar a este % del tramo de texto */
+export const CONTENT_FADE_COMPLETE_RATIO = 0.62;
+
+/** El video empieza a subir después de este % del tramo de texto */
+export const VIDEO_EXPAND_START_RATIO = 0.14;
+
 function vhToPx(vh: number) {
 	return window.innerHeight * (vh / 100);
 }
@@ -39,7 +45,14 @@ export function getHeroScrollMetrics(scrolled: number) {
 	const textEnd = vhToPx(TEXT_ANIMATION_END_VH);
 
 	const textProgress = clamp((scrolled - textStart) / (textEnd - textStart));
-	const expandProgress = textProgress;
 
-	return { textProgress, expandProgress, scrubStart: textEnd };
+	const contentFadeProgress = clamp(
+		textProgress / CONTENT_FADE_COMPLETE_RATIO,
+	);
+	const expandDelayed =
+		(textProgress - VIDEO_EXPAND_START_RATIO) /
+		(1 - VIDEO_EXPAND_START_RATIO);
+	const expandProgress = clamp(expandDelayed);
+
+	return { textProgress, contentFadeProgress, expandProgress, scrubStart: textEnd };
 }
