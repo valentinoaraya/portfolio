@@ -49,7 +49,7 @@ type Project = {
 	tagline: string;
 	description: string;
 	role: string;
-	url: string;
+	url: string | undefined;
 	/** Si el repo es público, link al repositorio. Dejar undefined si es privado. */
 	repoUrl?: string;
 	mock: ProjectMock;
