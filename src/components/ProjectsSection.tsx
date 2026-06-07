@@ -914,7 +914,7 @@ export default function ProjectsSection() {
 			<section
 				id="proyectos"
 				ref={sectionRef}
-				className="relative bg-dark px-6 pb-24 md:pb-32"
+				className="relative -mt-[2px] bg-dark px-6 pb-24 md:pb-32"
 			>
 				<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,_rgba(114,9,183,0.16),_transparent_30%),radial-gradient(circle_at_80%_45%,_rgba(72,149,239,0.12),_transparent_34%)]" />
 

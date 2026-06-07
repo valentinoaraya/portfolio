@@ -14,7 +14,7 @@ export const frameUrls = Object.entries(frameModules)
 
 export const FRAME_COUNT = frameUrls.length;
 
-export const SCROLL_PIXELS_PER_FRAME = 10;
+export const SCROLL_PIXELS_PER_FRAME = 16;
 
 export const SCROLL_DISTANCE = (FRAME_COUNT - 1) * SCROLL_PIXELS_PER_FRAME;
 
